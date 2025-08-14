@@ -1,0 +1,52 @@
+{
+    "name": "kanbanflow-mcp-server",
+    "version": "1.0.0",
+    "description": "Model Context Protocol (MCP) server for KanbanFlow - manage boards, tasks, and workflows from Cursor/Claude",
+    "main": "build/index.js",
+    "type": "module",
+    "bin": {
+        "kanbanflow-mcp": "./build/index.js"
+    },
+    "scripts": {
+        "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+        "start": "node build/index.js",
+        "dev": "tsc && node build/index.js",
+        "prepublishOnly": "npm run build"
+    },
+    "files": [
+        "build",
+        "README.md",
+        "LICENSE",
+        "mcp.config.example.json"
+    ],
+    "keywords": [
+        "mcp",
+        "model-context-protocol",
+        "kanbanflow",
+        "kanban",
+        "cursor",
+        "claude",
+        "ai",
+        "productivity",
+        "task-management"
+    ],
+    "author": "KanbanFlow MCP Server Contributors",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/your-username/kanbanflow-mcp-server"
+    },
+    "homepage": "https://github.com/your-username/kanbanflow-mcp-server#readme",
+    "bugs": {
+        "url": "https://github.com/your-username/kanbanflow-mcp-server/issues"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.0",
+        "typescript": "^5.7.2"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.4.0",
+        "axios": "^1.7.9",
+        "zod": "^3.23.8"
+    }
+}
