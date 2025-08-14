@@ -2,29 +2,38 @@
 
 A Model Context Protocol (MCP) server for KanbanFlow - manage your boards, tasks, and workflows directly from Cursor/Claude.
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Recommended)
 
-### 1. Get Your KanbanFlow API Token
-- Go to [kanbanflow.com/api](https://kanbanflow.com/api)
-- Create your API token
-
-### 2. Clone & Build
+### Option 1: One-Command Setup ✨
 ```bash
-git clone <this-repo>
-cd kanbanflow-mcp-server
-npm install
-npm run build
+# Install globally
+npm install -g kanbanflow-mcp-server
+
+# Auto-setup in any project
+cd your-project
+kanbanflow-mcp-server --setup
 ```
 
-### 3. Add to Cursor
-Add this to your `.cursor/mcp.json`:
+Enter your KanbanFlow API token when prompted, restart Cursor, and you're done! 🎉
 
+### Option 2: Developer Setup 🛠️
+```bash
+# Clone and build
+git clone <this-repo>
+cd kanbanflow-mcp-server
+npm install && npm run build
+
+# Auto-setup (works here too!)
+kanbanflow-mcp-server --setup
+```
+
+Or manually add to your `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
     "kanban-flow": {
       "command": "node",
-      "args": ["/full/path/to/kanbanflow-mcp-server/build/index.js"],
+      "args": ["/path/to/kanbanflow-mcp-server/build/index.js"],
       "env": {
         "KANBAN_API_TOKEN": "your_api_token_here"
       }
@@ -33,12 +42,8 @@ Add this to your `.cursor/mcp.json`:
 }
 ```
 
-**Replace:**
-- `/full/path/to/kanbanflow-mcp-server/` with your actual path
-- `your_api_token_here` with your KanbanFlow API token
-
-### 4. Restart Cursor
-That's it! 🎉
+## 🔑 Get Your API Token
+Get your KanbanFlow API token from [kanbanflow.com/api](https://kanbanflow.com/api)
 
 ## 🛠️ Available Tools
 

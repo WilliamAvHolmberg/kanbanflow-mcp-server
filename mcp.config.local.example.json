@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "kanban-flow": {
+      "command": "node",
+      "args": ["/path/to/kanbanflow-mcp-server/build/index.js"],
+      "env": {
+        "KANBAN_API_TOKEN": "your_kanbanflow_api_token_here"
+      }
+    }
+  }
+}

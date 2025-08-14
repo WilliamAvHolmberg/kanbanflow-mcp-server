@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "kanban-flow": {
+      "command": "kanbanflow-mcp-server",
+      "env": {
+        "KANBAN_API_TOKEN": "your_kanbanflow_api_token_here"
+      }
+    }
+  }
+}

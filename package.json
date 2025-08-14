@@ -5,7 +5,7 @@
     "main": "build/index.js",
     "type": "module",
     "bin": {
-        "kanbanflow-mcp": "./build/index.js"
+        "kanbanflow-mcp-server": "./build/index.js"
     },
     "scripts": {
         "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
@@ -17,7 +17,9 @@
         "build",
         "README.md",
         "LICENSE",
-        "mcp.config.example.json"
+        "mcp.config.example.json",
+        "mcp.config.global.example.json",
+        "mcp.config.local.example.json"
     ],
     "keywords": [
         "mcp",
@@ -30,23 +32,25 @@
         "productivity",
         "task-management"
     ],
-    "author": "KanbanFlow MCP Server Contributors",
+    "author": "William Holmberg",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/your-username/kanbanflow-mcp-server"
+        "url": "https://github.com/williamavholmberg/kanbanflow-mcp-server"
     },
-    "homepage": "https://github.com/your-username/kanbanflow-mcp-server#readme",
+    "homepage": "https://github.com/williamavholmberg/kanbanflow-mcp-server#readme",
     "bugs": {
-        "url": "https://github.com/your-username/kanbanflow-mcp-server/issues"
-    },
-    "devDependencies": {
-        "@types/node": "^22.10.0",
-        "typescript": "^5.7.2"
+        "url": "https://github.com/williamavholmberg/kanbanflow-mcp-server/issues"
     },
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.4.0",
         "axios": "^1.7.9",
+        "prompts": "^2.4.2",
         "zod": "^3.23.8"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.0",
+        "@types/prompts": "^2.4.9",
+        "typescript": "^5.7.2"
     }
 }

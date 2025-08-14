@@ -1,9 +1,14 @@
+#!/usr/bin/env node
 // Environment variables are provided by MCP client (Cursor)
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { KanbanService } from "./kanbanflow/kanban-service.js";
 import { Board, Column } from "./kanbanflow/types.js";
+import prompts from "prompts";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const kanbanService = new KanbanService();
 
@@ -795,11 +800,161 @@ server.tool(
 
 // Tools registered
 
+// CLI Setup Functions
+async function detectInstallationMethod(): Promise<'global' | 'local'> {
+    try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        
+        // Check if we're in node_modules (global install)
+        if (__dirname.includes('node_modules')) {
+            return 'global';
+        }
+        return 'local';
+    } catch {
+        return 'local';
+    }
+}
+
+async function getExecutablePath(installMethod: 'global' | 'local'): Promise<{ command?: string; args?: string[] }> {
+    if (installMethod === 'global') {
+        return { command: "kanbanflow-mcp-server" };
+    } else {
+        const __filename = fileURLToPath(import.meta.url);
+        return { command: "node", args: [__filename] };
+    }
+}
+
+async function createCursorMcpConfig(projectPath: string, execConfig: { command?: string; args?: string[] }, apiToken: string) {
+    const cursorDir = path.join(projectPath, '.cursor');
+    const mcpJsonPath = path.join(cursorDir, 'mcp.json');
+    
+    // Ensure .cursor directory exists
+    try {
+        await fs.mkdir(cursorDir, { recursive: true });
+    } catch (error) {
+        // Directory might already exist
+    }
+    
+    // Create MCP configuration
+    const mcpConfig = {
+        mcpServers: {
+            "kanban-flow": {
+                ...execConfig,
+                env: {
+                    KANBAN_API_TOKEN: apiToken
+                }
+            }
+        }
+    };
+    
+    // Check if mcp.json already exists
+    let existingConfig = {};
+    try {
+        const existingContent = await fs.readFile(mcpJsonPath, 'utf-8');
+        existingConfig = JSON.parse(existingContent);
+    } catch {
+        // File doesn't exist or is invalid, start fresh
+    }
+    
+    // Merge configurations
+    const finalConfig = {
+        ...existingConfig,
+        mcpServers: {
+            ...(existingConfig as any)?.mcpServers,
+            ...mcpConfig.mcpServers
+        }
+    };
+    
+    // Write configuration
+    await fs.writeFile(mcpJsonPath, JSON.stringify(finalConfig, null, 2));
+    return mcpJsonPath;
+}
+
+async function runSetupWizard() {
+    console.log('🚀 KanbanFlow MCP Server Setup Wizard\n');
+    
+    // Detect installation method
+    const installMethod = await detectInstallationMethod();
+    console.log(`📦 Installation method: ${installMethod}`);
+    
+    // Get executable configuration
+    const execConfig = await getExecutablePath(installMethod);
+    
+    // Prompt for API token
+    const response = await prompts({
+        type: 'password',
+        name: 'apiToken',
+        message: 'Enter your KanbanFlow API token (get it from kanbanflow.com/api):',
+        validate: (value) => value.length > 0 ? true : 'API token is required'
+    });
+    
+    if (!response.apiToken) {
+        console.log('❌ Setup cancelled');
+        process.exit(0);
+    }
+    
+    // Create configuration
+    const projectPath = process.cwd();
+    try {
+        const configPath = await createCursorMcpConfig(projectPath, execConfig, response.apiToken);
+        
+        console.log('\n✅ Setup complete!');
+        console.log(`📁 Created: ${configPath}`);
+        console.log('🔄 Please restart Cursor to use KanbanFlow tools');
+        console.log('\n🎉 You can now ask Claude to manage your KanbanFlow board!');
+        
+    } catch (error) {
+        console.error('\n❌ Setup failed:', error);
+        process.exit(1);
+    }
+}
+
+function showHelp() {
+    console.log(`
+🔧 KanbanFlow MCP Server
+
+USAGE:
+  kanbanflow-mcp-server [options]
+
+OPTIONS:
+  --setup, --init    Set up MCP configuration for current project
+  --help, -h         Show this help message
+
+EXAMPLES:
+  kanbanflow-mcp-server --setup    # Interactive setup wizard
+  kanbanflow-mcp-server            # Start MCP server (used by Cursor)
+
+For more information, visit: https://github.com/your-username/kanbanflow-mcp-server
+    `);
+}
+
 // Start the server with stdio transport
-async function main() {
+async function startMcpServer() {
+    console.error("[MCP Server] Starting Kanban Flow MCP server with stdio transport...");
     const transport = new StdioServerTransport();
+    console.error("[MCP Server] Connecting server to stdio transport...");
     await server.connect(transport);
-    // Kanban Flow MCP Server ready for stdio communication
+    console.error("[MCP Server] Kanban Flow MCP Server ready for stdio communication");
+}
+
+// Main entry point with CLI detection
+async function main() {
+    const args = process.argv.slice(2);
+    
+    // Check for CLI commands
+    if (args.includes('--setup') || args.includes('--init')) {
+        await runSetupWizard();
+        process.exit(0);
+    }
+    
+    if (args.includes('--help') || args.includes('-h')) {
+        showHelp();
+        process.exit(0);
+    }
+    
+    // Default: start MCP server
+    await startMcpServer();
 }
 
 main().catch((error) => {
