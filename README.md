@@ -2,48 +2,75 @@
 
 A Model Context Protocol (MCP) server for KanbanFlow - manage your boards, tasks, and workflows directly from Cursor/Claude.
 
-## 🚀 Quick Start (Recommended)
+## 🚀 Quick Start (One Command!)
 
-### Option 1: One-Command Setup ✨
+### 🎯 Recommended: Auto-Setup
 ```bash
 # Install globally
 npm install -g kanbanflow-mcp-server
 
-# Auto-setup in any project
-cd your-project
+# Auto-magic setup in ANY project
+cd your-project-folder
 kanbanflow-mcp-server --setup
 ```
 
-Enter your KanbanFlow API token when prompted, restart Cursor, and you're done! 🎉
+**That's it!** ✨ The setup wizard will:
+- 🔍 **Detect** your installation automatically
+- 🛡️ **Preserve** any existing MCP servers you have
+- 💾 **Create backups** of your configuration
+- ⚙️ **Generate** the perfect config with full paths
+- 🎯 **Add** KanbanFlow to your Cursor setup
 
-### Option 2: Developer Setup 🛠️
+### 🛠️ Alternative: Developer Setup
 ```bash
-# Clone and build
-git clone <this-repo>
+# Clone and build from source
+git clone https://github.com/williamavholmberg/kanbanflow-mcp-server
 cd kanbanflow-mcp-server
 npm install && npm run build
 
-# Auto-setup (works here too!)
+# Same magic setup wizard works here too!
 kanbanflow-mcp-server --setup
 ```
 
-Or manually add to your `.cursor/mcp.json`:
-```json
-{
-  "mcpServers": {
-    "kanban-flow": {
-      "command": "node",
-      "args": ["/path/to/kanbanflow-mcp-server/build/index.js"],
-      "env": {
-        "KANBAN_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
+## 🔑 Get Your API Token
+1. Go to [kanbanflow.com/api](https://kanbanflow.com/api)
+2. Create your API token
+3. Enter it when prompted by the setup wizard
+
+## 🛡️ Safe & Smart Configuration
+
+The setup wizard is **bulletproof**:
+
+- ✅ **Never overwrites** your existing MCP servers
+- ✅ **Creates automatic backups** before any changes
+- ✅ **Merges intelligently** with your current setup
+- ✅ **Uses reliable paths** (no binary issues)
+- ✅ **Works everywhere** (macOS, Windows, Linux)
+
+### Example Scenarios:
+
+**New project?**
+```bash
+📝 Creating new MCP configuration file...
+✅ Setup complete!
 ```
 
-## 🔑 Get Your API Token
-Get your KanbanFlow API token from [kanbanflow.com/api](https://kanbanflow.com/api)
+**Already have MCP servers?**
+```bash
+📋 Found existing MCP configuration with 2 server(s)
+➕ Adding kanban-flow to existing configuration...
+💾 Created backup: mcp.json.backup.1692123456789
+✅ Setup complete!
+💡 Your existing MCP servers are preserved!
+```
+
+**Updating KanbanFlow config?**
+```bash
+📋 Found existing MCP configuration with 3 server(s)
+🔄 Updating existing kanban-flow configuration...
+💾 Created backup: mcp.json.backup.1692123456789
+✅ Setup complete!
+```
 
 ## 🛠️ Available Tools
 
@@ -76,21 +103,52 @@ Get your KanbanFlow API token from [kanbanflow.com/api](https://kanbanflow.com/a
 ## 📝 Usage Examples
 
 Ask Claude things like:
-- "Show me my board structure"
-- "Create a task called 'Fix bug' in the To-Do column"
-- "Add subtasks to task T123: Write tests, Review code, Deploy"
-- "Move task T456 to Done column"
-- "What tasks are in my In Progress column?"
+- *"Show me my board structure"*
+- *"Create a task called 'Fix bug' in the To-Do column"*
+- *"Add subtasks to task T123: Write tests, Review code, Deploy"*
+- *"Move task T456 to Done column"*
+- *"What tasks are in my In Progress column?"*
+- *"Create a task with 3 subtasks for implementing user authentication"*
 
-## 🔧 Development
+## 🔧 Manual Configuration (Advanced)
+
+If you prefer manual setup, the wizard generates this format:
+
+```json
+{
+  "mcpServers": {
+    "kanban-flow": {
+      "command": "node",
+      "args": ["/path/to/kanbanflow-mcp-server/build/index.js"],
+      "env": {
+        "KANBAN_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+## 🚀 Development
 
 ```bash
 # Build
 npm run build
 
+# Help
+kanbanflow-mcp-server --help
+
 # Test (requires KANBAN_API_TOKEN env var)
 npm run dev
 ```
+
+## 🎯 Why This MCP Server Rocks
+
+- 🪄 **One-command setup** - No manual config editing
+- 🛡️ **Bulletproof safety** - Never breaks your existing setup
+- 🎯 **Smart detection** - Works with any installation method
+- 🔄 **Re-runnable** - Update your config anytime safely
+- 📱 **Cross-platform** - macOS, Windows, Linux
+- 🚀 **Industry-leading UX** - The way MCP setup should work
 
 ## 📄 License
 
@@ -107,3 +165,5 @@ MIT License - see [LICENSE](LICENSE) file.
 ---
 
 **Need help?** Open an issue!
+
+> 💡 **Pro tip:** Run `kanbanflow-mcp-server --setup` anytime to update your configuration safely!
