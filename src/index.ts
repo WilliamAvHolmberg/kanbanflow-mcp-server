@@ -817,12 +817,9 @@ async function detectInstallationMethod(): Promise<'global' | 'local'> {
 }
 
 async function getExecutablePath(installMethod: 'global' | 'local'): Promise<{ command?: string; args?: string[] }> {
-    if (installMethod === 'global') {
-        return { command: "kanbanflow-mcp-server" };
-    } else {
-        const __filename = fileURLToPath(import.meta.url);
-        return { command: "node", args: [__filename] };
-    }
+    // ALWAYS use node + args format for maximum reliability
+    const __filename = fileURLToPath(import.meta.url);
+    return { command: "node", args: [__filename] };
 }
 
 async function createCursorMcpConfig(projectPath: string, execConfig: { command?: string; args?: string[] }, apiToken: string) {
@@ -850,14 +847,31 @@ async function createCursorMcpConfig(projectPath: string, execConfig: { command?
     
     // Check if mcp.json already exists
     let existingConfig = {};
+    let isExistingFile = false;
+    let hasExistingServers = false;
+    
     try {
         const existingContent = await fs.readFile(mcpJsonPath, 'utf-8');
         existingConfig = JSON.parse(existingContent);
+        isExistingFile = true;
+        hasExistingServers = existingConfig && (existingConfig as any).mcpServers && Object.keys((existingConfig as any).mcpServers).length > 0;
+        
+        if (hasExistingServers) {
+            console.log(`📋 Found existing MCP configuration with ${Object.keys((existingConfig as any).mcpServers).length} server(s)`);
+            
+            // Check if kanban-flow already exists
+            if ((existingConfig as any).mcpServers?.['kanban-flow']) {
+                console.log('🔄 Updating existing kanban-flow configuration...');
+            } else {
+                console.log('➕ Adding kanban-flow to existing configuration...');
+            }
+        }
     } catch {
         // File doesn't exist or is invalid, start fresh
+        console.log('📝 Creating new MCP configuration file...');
     }
     
-    // Merge configurations
+    // Merge configurations safely
     const finalConfig = {
         ...existingConfig,
         mcpServers: {
@@ -865,6 +879,17 @@ async function createCursorMcpConfig(projectPath: string, execConfig: { command?
             ...mcpConfig.mcpServers
         }
     };
+    
+    // Create backup if overwriting existing file with servers
+    if (isExistingFile && hasExistingServers) {
+        const backupPath = mcpJsonPath + '.backup.' + Date.now();
+        try {
+            await fs.copyFile(mcpJsonPath, backupPath);
+            console.log(`💾 Created backup: ${path.basename(backupPath)}`);
+        } catch (error) {
+            console.warn('⚠️  Could not create backup file');
+        }
+    }
     
     // Write configuration
     await fs.writeFile(mcpJsonPath, JSON.stringify(finalConfig, null, 2));
@@ -900,9 +925,10 @@ async function runSetupWizard() {
         const configPath = await createCursorMcpConfig(projectPath, execConfig, response.apiToken);
         
         console.log('\n✅ Setup complete!');
-        console.log(`📁 Created: ${configPath}`);
+        console.log(`📁 Configuration: ${configPath}`);
         console.log('🔄 Please restart Cursor to use KanbanFlow tools');
-        console.log('\n🎉 You can now ask Claude to manage your KanbanFlow board!');
+        console.log('\n💡 Your existing MCP servers (if any) are preserved!');
+        console.log('🎉 You can now ask Claude to manage your KanbanFlow board!');
         
     } catch (error) {
         console.error('\n❌ Setup failed:', error);
